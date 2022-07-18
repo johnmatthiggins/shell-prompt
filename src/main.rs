@@ -15,7 +15,12 @@ fn main() -> std::io::Result<()> {
 
     if let Some(s) = path {
         match git_status(&s.to_string()) {
-            Ok(b) => println!("({}) {} $", b, s),
+            Ok(b) =>
+                println!("[{}@{} {}]({}) $\n> ",
+                    "jhiggins",
+                    "PAT",
+                    s,
+                    Colour::Green.paint(b)),
             Err(_) => println!("{} $", s),
         }
     }
@@ -29,6 +34,7 @@ fn git_status(cwd: &String) -> Result<String, Error> {
     repo.and_then(|r| r
         .head()
         .and_then(|h| h
-            .name()
-            .to_string()))
+            .shorthand()
+            .map(|x| x.to_string())
+            .ok_or(Error::from_str("Could not find name."))))
 }
